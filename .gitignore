@@ -1,0 +1,6 @@
+.vscode
+*.csv
+*.keras
+*.png
+*.jpg
+*.jpeg
