@@ -5,3 +5,12 @@
 *.jpg
 *.jpeg
 *.npz
+
+# LaTeX files
+report/main.pdf
+report/main.aux
+report/main.log
+report/main.out
+report/main.bbl
+report/main.blg
+report/main.dvi
