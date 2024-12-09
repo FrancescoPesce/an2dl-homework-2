@@ -126,30 +126,15 @@
       % -----------------------------------------------------------------------
       \label{sec:experiments}
       \section{Experiments}
-      % Step 1: bad CNN just to test things out
-      % Step 2: normal augmentation
-      % Step 3: overlaying
-      % Step 4: keras cv (gigachad picture)
-      % Step 5: testing residual networks (up to 0.8)
-      %   and inception blocks (up to 0.72)
-      % Step 6: custom block (in detail)
-      % Step 7: add more filters
-      % Step 8.....: not done yet
-      % If you need accuracies, number of parameters etc ask me
+      We performed many experiments, but most of them have the same basic structure, which was heavily inspired by the U-Net architecture. All models have a "V" shape, with a contracting path on the left and an expanding path on the right. The contracting path is composed of a series of convolutional layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The expanding path is composed of a series of up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels.
 
-      % Failed experiments:
-      % transfer learning (bad accuracy) (VGG, MobileNet, ResNet), both with and
-      % without fine tuning
-      % Lion, stochastic gradient descent with momentum
-
-      % Ideas that worked momentarily:
-      % voting mechanism with multiple neural networks
-      % averaging weights below a certain validation loss
-      We performed many experiments, some of which significantly improved the accuracy of our models. In chronological order, the main breakthroughs were:
+      The latest models also feature connections between the contracting and expanding paths of the same size, which are used to pass information from the contracting to the expanding section. In chronological order, the main breakthroughs were:
       \begin{itemize}[leftmargin=*]
             \setlength\itemsep{0em}
             \item \textbf{Experiment:} Description
       \end{itemize}
+
+      Some experiments did not lead to any improvement, and were discarded. For example, ...
 
       % For your experiments, you might want to present your results in tables.
       % Here's an example of a wide table comparing different models:
@@ -222,8 +207,6 @@
       % -----------------------------------------------------------------------
       \label{sec:results}
       \section{Results}
-      % Keras CV is good
-      % Combining residual and inception is good
       % Present your main findings here. You might want to:
       % \begin{itemize}
       %     \item Compare your results with baselines
@@ -235,7 +218,6 @@
       % DISCUSSION
       % -----------------------------------------------------------------------
       \section{Discussion}
-      % Wait until we have the final results
       % In this section, analyse your results critically. Consider:
       % \begin{itemize}
       %     \item Strengths and weaknesses
