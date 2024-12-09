@@ -92,7 +92,11 @@
       % \noindent If you need to reference papers, use the citation command:
       % Recent work~\cite{lecun2015deep} suggests..."
 
-      After manually analyzing the dataset, we found that a portion of the test presented irrelevant, or otherwise unnecessary images. We didn't consider said images in our training, as we didn't expect them to be present in the test set.
+      The dataset is composed of 64x128 grayscale images, each pixel belonging to one of five classes (background, soil, bedrock, sand, big rock). Without considering the background, the model is evaluated on the intersection over union (IoU) metric, which is the ratio between the intersection and the union of the predicted and true masks. The minimum IoU is chosen within the classes as the final score.
+
+      Labels are only provided in the training set, and the test set (available on Kaggle) is only used for the evaluation of the model. In order to validate the model, we split the training set into a training and validation set, using a 80-20 ratio. Differently from the first homework, we noticed that the validation and test sets' performances were similar.
+
+      After manually analyzing the dataset, we found that a portion of the test presented 110 irrelevant, or otherwise unnecessary images. We didn't consider said images in our training, as we didn't expect them to be present in the test set. Moreover, the provided labels do not appear to be perfect, as they were labelled by hand. This could lead to a decrease in the model's performance which is not due to the model itself.
 
       % -----------------------------------------------------------------------   
       % METHOD
@@ -242,6 +246,8 @@
       % CONTRIBUTIONS
       % -----------------------------------------------------------------------
       \section{Contributions}
+
+      Most ideas and propositions were evenly distributed among the team members, while actual coding was more specific to each member's strengths. Many different branches were created in the project's repository to experiment with different ideas and techniques, and the final model was a result of combining the best experiments from each branch.
 
       % -----------------------------------------------------------------------
       % CONCLUSIONS
