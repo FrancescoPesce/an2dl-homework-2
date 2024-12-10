@@ -72,8 +72,8 @@
       % \noindent For instance, you might write: ``This project focuses on
       % \textit{image classification} using \textbf{deep learning} techniques."
 
-      This report presents the results of the \textit{semantic segmentation}
-      task proposed in the second homework of the \texttt{Artificial Neural Networks and Deep Learning} course. The goal of the project is to categorize all the pixels in a 64x128 grayscale image into different classes, each representing a different type of terrain.
+      This report presents the results of the \textit{semantic segmentation}\cite{long2015fullyconvolutionalnetworkssemantic}
+      task proposed in the second homework of the \texttt{Artificial Neural Networks and Deep Learning} course. The goal of the project is to categorize all pixels in a $64\times128$ grayscale image into different classes, each representing a different type of terrain.
 
       % -----------------------------------------------------------------------
       % PROBLEM ANALYSIS
@@ -92,7 +92,11 @@
       % \noindent If you need to reference papers, use the citation command:
       % Recent work~\cite{lecun2015deep} suggests..."
 
-      After manually analyzing the dataset, we found that a portion of the test presented irrelevant, or otherwise unnecessary images. We didn't consider said images in our training, as we didn't expect them to be present in the test set.
+      The dataset is composed of $64\times128$ grayscale images, each pixel belonging to one of five classes (background, soil, bedrock, sand, big rock), resembling a Mars surface classification task\cite{li2024marssegmarssurfacesemantic}. Without considering the background, the model is evaluated on the intersection over union (IoU) metric, which is the ratio between the intersection and the union of the predicted and true masks. The minimum IoU is chosen within the classes as the final score.
+
+      Labels are only provided in the training set, and the test set (available on Kaggle\cite{kaggle}) is only used for the evaluation of the model. In order to validate the model, we split the training set into a training and validation set, using a $80$ to $20$ ratio. Differently from the first homework, we noticed that the validation and test sets' performances were similar.
+
+      After manually analyzing the dataset, we found that a portion of the test presented $110$ irrelevant, or otherwise unnecessary images. We didn't consider said images in our training, as we didn't expect them to be present in the test set. Moreover, the provided labels do not appear to be perfect, as they were labelled by hand. This leads to a decrease in the model's performance which isn't due to the model itself.
 
       % -----------------------------------------------------------------------   
       % METHOD
@@ -122,30 +126,21 @@
       % -----------------------------------------------------------------------
       \label{sec:experiments}
       \section{Experiments}
-      % Step 1: bad CNN just to test things out
-      % Step 2: normal augmentation
-      % Step 3: overlaying
-      % Step 4: keras cv (gigachad picture)
-      % Step 5: testing residual networks (up to 0.8)
-      %   and inception blocks (up to 0.72)
-      % Step 6: custom block (in detail)
-      % Step 7: add more filters
-      % Step 8.....: not done yet
-      % If you need accuracies, number of parameters etc ask me
+      We performed many experiments, but most of them have the same basic structure, which was heavily inspired by the U-Net architecture. All models consist of a contracting path on the left and an expanding path on the right. The contracting path is composed of a series of convolutional layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The expanding path is composed of a series of up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels.
 
-      % Failed experiments:
-      % transfer learning (bad accuracy) (VGG, MobileNet, ResNet), both with and
-      % without fine tuning
-      % Lion, stochastic gradient descent with momentum
-
-      % Ideas that worked momentarily:
-      % voting mechanism with multiple neural networks
-      % averaging weights below a certain validation loss
-      We performed many experiments, some of which significantly improved the accuracy of our models. In chronological order, the main breakthroughs were:
+      The latest models also feature connections between the contracting and expanding paths of the same size, which are used to pass information from the contracting to the expanding section. In chronological order, the main breakthroughs were:
       \begin{itemize}[leftmargin=*]
             \setlength\itemsep{0em}
             \item \textbf{Experiment:} Description
+            \item \textbf{Experiment:} Description
+            \item \textbf{Experiment:} Description
+            \item \textbf{Experiment:} Description
+            \item \textbf{Experiment:} Description
+            \item \textbf{Experiment:} Description
+            \item \textbf{Experiment:} Description
       \end{itemize}
+
+      Some experiments did not lead to any improvement, and were discarded. For example, ...
 
       % For your experiments, you might want to present your results in tables.
       % Here's an example of a wide table comparing different models:
@@ -218,8 +213,6 @@
       % -----------------------------------------------------------------------
       \label{sec:results}
       \section{Results}
-      % Keras CV is good
-      % Combining residual and inception is good
       % Present your main findings here. You might want to:
       % \begin{itemize}
       %     \item Compare your results with baselines
@@ -227,11 +220,29 @@
       %     \item Explain any unexpected outcomes
       % \end{itemize}
 
+      \begin{table}[H]
+            \centering
+            \setlength{\tabcolsep}{3pt}
+            \caption{Description goes here.}
+            \begin{tabularx}{\linewidth}{lY}
+                \toprule
+                Column 1 & Column 2 \\
+                \midrule
+                Item 1 & Item 2 \\
+                Item 1 & Item 2 \\
+                Item 1 & Item 2 \\
+                Item 1 & Item 2 \\
+                Item 1 & Item 2 \\
+                Item 1 & Item 2 \\
+                \bottomrule
+            \end{tabularx}
+            \label{tab:results}
+        \end{table}
+
       % -----------------------------------------------------------------------
       % DISCUSSION
       % -----------------------------------------------------------------------
       \section{Discussion}
-      % Wait until we have the final results
       % In this section, analyse your results critically. Consider:
       % \begin{itemize}
       %     \item Strengths and weaknesses
@@ -242,6 +253,8 @@
       % CONTRIBUTIONS
       % -----------------------------------------------------------------------
       \section{Contributions}
+
+      Most ideas and propositions were evenly distributed among the team members, while actual coding was more specific to each member's strengths. Many different branches were created in the project's repository to experiment with different ideas and techniques, and the final model was a result of combining the best experiments from each branch.
 
       % -----------------------------------------------------------------------
       % CONCLUSIONS
