@@ -126,18 +126,17 @@
       % -----------------------------------------------------------------------
       \label{sec:experiments}
       \section{Experiments}
-      We performed many experiments, but most of them have the same basic structure, which was heavily inspired by the U-Net architecture. All models consist of a contracting path on the left and an expanding path on the right. The contracting path is composed of a series of convolutional layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The expanding path is composed of a series of up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels.
+      We performed many experiments, but most of them have the same basic structure, which was heavily inspired by the U-Net\cite{ronneberger2015unetconvolutionalnetworksbiomedical} architecture. All models consist of a contracting path on the left and an expanding path on the right. The contracting path is composed of a series of convolutional layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The expanding path is composed of a series of up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels.
 
-      The latest models also feature connections between the contracting and expanding paths of the same size, which are used to pass information from the contracting to the expanding section. In chronological order, the main breakthroughs were:
+      In chronological order, the main breakthroughs were:
       \begin{itemize}[leftmargin=*]
             \setlength\itemsep{0em}
-            \item \textbf{Experiment:} Description
-            \item \textbf{Experiment:} Description
-            \item \textbf{Experiment:} Description
-            \item \textbf{Experiment:} Description
-            \item \textbf{Experiment:} Description
-            \item \textbf{Experiment:} Description
-            \item \textbf{Experiment:} Description
+            \item \textbf{U-net usage:} We initially started with a simple U-Net architecture, to get a baseline of the model's performance and to understand the reponse of the model to the dataset, and the website's evaluation.
+            \item \textbf{Simple augmentation:} Similarly to the first homework, we used simple augmentations such as rotations, flips, and zooms to increase the model's robustness. Of course, this was also applied to the labels, so that they'd refer to the transformed version of their own pixel.
+            \item \textbf{Lowering the batch size:} Our first major obstacle was the model's inability to learn consistently and predictably, which was solved by lowering the batch size. Although this didn't substantially increase the model's performance, it allowed the model to behave more consistently, with a lower result variance.
+            \item \textbf{Custom block:} By following our previous experience with the first homework, we added our own custom block (described in detail in the previous report): a combination of features from residual and inception-like structures.
+            \item \textbf{IoU loss function:} Given the nature of the evaluation, we decided to use the very same metric as the loss function, to directly optimize the model for the evaluation. This function was implemented by directly accessing the backend of the Keras library.
+            \item \textbf{Attention gates:} The latest models feature connections between the contracting and expanding paths of the same size, which are used to pass information from the same-sized sections of the mode. As attention gates\cite{oktay2018attentionunetlearninglook} are used, the model is able to focus on the most important parts of the image, and ignore the rest.
       \end{itemize}
 
       Some experiments did not lead to any improvement, and were discarded. For example, ...
