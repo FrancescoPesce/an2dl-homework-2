@@ -16,3 +16,4 @@ report/main.blg
 report/main.dvi
 
 !report/*.jpeg
+!report/*.png
