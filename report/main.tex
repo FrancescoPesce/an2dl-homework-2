@@ -73,7 +73,7 @@
       % \textit{image classification} using \textbf{deep learning} techniques."
 
       This report presents the results of the \textit{semantic segmentation}\cite{long2015fullyconvolutionalnetworkssemantic}
-      task proposed in the second homework of the \texttt{Artificial Neural Networks and Deep Learning} course. The goal of the project is to categorize all pixels in a $64\times128$ grayscale image into different classes, each representing a different type of terrain.
+      task proposed in the second homework of the \texttt{Artificial Neural Networks and Deep Learning} course. The goal of the project is to classify each pixel in a $64\times128$ grayscale image in 5 classes, each representing a different type of terrain or object on the Mars surface.
 
       % -----------------------------------------------------------------------
       % PROBLEM ANALYSIS
@@ -92,11 +92,11 @@
       % \noindent If you need to reference papers, use the citation command:
       % Recent work~\cite{lecun2015deep} suggests..."
 
-      The dataset is composed of $64\times128$ grayscale images, each pixel belonging to one of five classes (background, soil, bedrock, sand, big rock), resembling a Mars surface classification task\cite{li2024marssegmarssurfacesemantic}. Without considering the background, the model is evaluated on the intersection over union (IoU) metric, which is the ratio between the intersection and the union of the predicted and true masks. The minimum IoU is chosen within the classes as the final score.
+      The dataset is composed of $64\times128$ grayscale images, each pixel belonging to one of five classes (background, soil, bedrock, sand, big rock), resembling a Mars surface classification task\cite{li2024marssegmarssurfacesemantic}. Without considering the background, the model is evaluated on the intersection over union (IoU) metric. For each class, the IoU is evaluated as the ratio of the number of true positives and the sum of positives and false negatives. Finally, the mean IoU is computed as the average of the IoUs over all non-background classes.
 
-      Labels are only provided in the training set, and the test set (available on Kaggle\cite{kaggle}) is only used for the evaluation of the model. In order to validate the model, we split the training set into a training and validation set, using a $80$ to $20$ ratio. Differently from the first homework, we noticed that the validation and test sets' performances were similar.
+      We were provided a training and test set. Labels are only provided for the training set, while the test set is used to evaluate our models, by uploading the models' predictions to the Kaggle\cite{kaggle} platform. In order to validate the model, we split the training set into a training and validation set, using a $80$ to $20$ ratio. Differently from the first homework, we noticed that the validation and test sets' performances were rather similar, so we were able to avoid submitting models with low performance on the validation set.
 
-      After manually analyzing the dataset, we found that a portion of the test presented $110$ irrelevant, or otherwise unnecessary images. We didn't consider said images in our training, as we didn't expect them to be present in the test set. Moreover, the provided labels do not appear to be perfect, as they were labelled by hand. This leads to a decrease in the model's performance which isn't due to the model itself.
+      After manually analyzing the dataset, we found that a portion of the test presented $110$ images containing unraled overlays. We didn't consider said images in our training, as we didn't expect said overlays to be present in the test set. Moreover, the provided labels do not appear to be perfect, as they were labelled by hand. This leads to a decrease in the model's performance which isn't due to the model itself, but can be modeled as innate variability of the data.
 
       % -----------------------------------------------------------------------   
       % METHOD
@@ -119,27 +119,38 @@
       % \noindent Reference these equations in your text, like:``As shown in
       % equation~\ref{eq:model}..."
 
-      Most of the development process was done on a \texttt{Jupyter} notebook, using the \texttt{Tensorflow}\cite{TensorFlow} and \texttt{Keras}\cite{chollet2015keras} libraries for \texttt{Python}, mostly run locally using an \texttt{NVIDIA RTX 2060 Mobile} for training, due to strict GPU usage limits of popular platforms, such as \texttt{Google Colab}.
+      Most of the development process was done on \texttt{Jupyter} notebooks, using the \texttt{Tensorflow}\cite{TensorFlow} and \texttt{Keras}\cite{chollet2015keras} libraries for \texttt{Python}. Except for very early models, which were trained on \texttt{Google Colab}, trianing was run locally using an \texttt{NVIDIA RTX 2060 Mobile}.
 
       % -----------------------------------------------------------------------
       % EXPERIMENTS
       % -----------------------------------------------------------------------
       \label{sec:experiments}
       \section{Experiments}
-      We performed many experiments, but most of them have the same basic structure, which was heavily inspired by the U-Net\cite{ronneberger2015unetconvolutionalnetworksbiomedical} architecture. All models consist of a contracting path on the left and an expanding path on the right. The contracting path is composed of a series of convolutional layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The expanding path is composed of a series of up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels.
+      We performed many experiments, with all models sharing the same basic structure, heavily inspired by the U-Net\cite{ronneberger2015unetconvolutionalnetworksbiomedical} architecture. All models consist of a contracting path on the left and an expanding path on the right. The contracting path is composed of a series of convolutional and downsampling layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The expanding path is composed of a series of convolutional and up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels.
 
+      \subsection{Succesful experiments}
       In chronological order, the main breakthroughs were:
       \begin{itemize}[leftmargin=*]
             \setlength\itemsep{0em}
-            \item \textbf{U-net usage:} We initially started with a simple U-Net architecture, to get a baseline of the model's performance and to understand the reponse of the model to the dataset, and the website's evaluation.
-            \item \textbf{Simple augmentation:} Similarly to the first homework, we used simple augmentations such as rotations, flips, and zooms to increase the model's robustness. Of course, this was also applied to the labels, so that they'd refer to the transformed version of their own pixel.
-            \item \textbf{Lowering the batch size:} Our first major obstacle was the model's inability to learn consistently and predictably, which was solved by lowering the batch size. Although this didn't substantially increase the model's performance, it allowed the model to behave more consistently, with a lower result variance.
-            \item \textbf{Custom block:} By following our previous experience with the first homework, we added our own custom block (described in detail in the previous report): a combination of features from residual and inception-like structures.
-            \item \textbf{IoU loss function:} Given the nature of the evaluation, we decided to use the very same metric as the loss function, to directly optimize the model for the evaluation. This function was implemented by directly accessing the backend of the Keras library.
-            \item \textbf{Attention gates:} The latest models feature connections between the contracting and expanding paths of the same size, which are used to pass information from the same-sized sections of the mode. As attention gates\cite{oktay2018attentionunetlearninglook} are used, the model is able to focus on the most important parts of the image, and ignore the rest.
+            \item \textbf{Trivial U-Net:} We initially started with a simple U-Net architecture, to get a baseline of the model's performance and to understand the reponse of the model to the dataset, and the website's evaluation.
+            \item \textbf{Simple augmentation:} Similarly to the first homework, we used simple augmentations such as rotations, flips, and zooms to increase the model's robustness. Of course, this was also applied to the labels, so that they'd refer to the transformed version of their own pixel. We tested more complex augmentations as well, but the later models only including horizontal flips, as other augmentations did not result in increased accuracy.
+            \item \textbf{Lowering the batch size:} Our first major obstacle was the model's inability to learn consistently and predictably. Minor changes to the model or even the seed would result in the training processes halting at an IoU of less then 0.1. The issue was likely the fact that the training process remained stuck in a global minimum, and the more noisy graident estimations produced by a lower batch size were able to solve the problem. Although this didn't increase the model's performance on its own, it allowed the model to behave more consistently, with a lower result variance, setting the stage for future improvements, and allowing us to use larger networks.
+            \item \textbf{Custom block:} By following our previous experience with the first homework, we added our own custom block (described in detail in the previous report), which is formed by a stack of inception blocks followed by residual connections, in place of the convolutional layers.
+            \item \textbf{IoU loss function:} To directly optimize the model for the evaluation, we decided to implement 1 - the mean IoU as the loss function. This function was implemented by directly accessing the backend of the Keras library.
+            \item \textbf{Attention gates:} The latest models feature connections between contracting and expanding paths of the same size, which are used to pass information from the same-sized sections of the mode. As attention gates\cite{oktay2018attentionunetlearninglook} are used, the model is able to focus on the most important parts of the image, and ignore the rest, providing a large improvement in the result.
       \end{itemize}
 
-      Some experiments did not lead to any improvement, and were discarded. For example, ...
+      \subsection{Failed experiments}
+      Other than the experiments mentioned above, we performed many more experiments, which did not lead to any improvement. Chronologically, most experiments are placed after the last succesful experiment, to try to further increase the performance of the model. The main experiments are:
+      \begin{itemize}[leftmargin=*]
+            \item \textbf{Other normalization techqniques: } We tried replacing Batch Normalization layers with Instance, Group or Channel normalization layers. While this appeared to make the training process more consistent, it did not improve the result.
+            \item \textbf{Complex loss functions:} We experimented with many loss functions, including a combination of sparse categorical crossentropy, dice and focal losses summed together with some adjustable weights. Moreover, we experimented with a mechanism to adaptively change those weights during training, based for example on the epoch or the current loss.
+            \item \textbf{Big rock and background recongnition:} Analyzing the confusion matrix of our best model, we noticed that it performed rather well on classes 1 to 3, with a mean IoU compute on those classes only close to 0.8. However, the model seemed to be unable to discriminate the background and class 4 (big rock) classes. Since the training set contained only 63 images featuring big rocks, the training process was clearly unable to produce a model capable of recognizing them effectively. Therefore, we developed a separate model, with the same structure, but with all labels mapped into only two classes: background (containing all classes except for class 4) and big rock. We attempted to train the model using a weighted categorical crossentropy loss function, and the IoU loss, both on the entire training set and only on images containing big rocks. None of the models we produced was however capable of recognizing big rocks significantly better than randomly guessing. We then approched the problem in a different way, still developing a separate model, but this time to recognize class 0, with all other classes mapped into the same label, so that big rocks could be recognized as the pixels that are not classified as background by the latter model, nor as any of the other classes by our main model. Sadly, this approach did not work out either.
+            \item \textbf{Dilated convolutions:} We tried replacing 5x5 convolutions in our inception blocks with 3x3 dilated convolutions, to reduce the number of parameters of the model, reducing overfitting and incresing the training process's effectiveness. We also experimented with variable dilation rates, higher in deeper levels of the network.
+            \item \textbf{Model fusion:} Another idea we explored was training multiple models, with either slightly different architectures or simply trained with different seeds, and using them as a sort of ensamble method. However, all models' predictions were rather aligned, suggesting models were likely capable of recognizing the same types of features. We tried adding the predictions of our best model to the inputs of a separate model, training the latter with inputs in the form (image, prior\_prediction), both with and without skip connections between the prior predictions and the outputs, with the reasoning that this could work as a sort of residual architecture, but without the need for more memory during training.
+            \item \textbf{Multiple classification heads:} We considered adding a classification head classifying the outputs of the lower level of the decoder, trained using downsampled versions of the labels. We attempted training the whole model twice, the first time using a weighted combination of the mean IoU at the coarser level and the mean IoU at the finer level, to incentivise the lower level to learn the needed features, while keeping a baseline performace for the upper level. The second training process was done discaring the added classification head, to maximize the mean IoU at the finer level. We attempted other options as well, including a single training process, adaptively lowering the weight of the mean IoU at the coarser level, and adding a third encoding and deconding level and a third classification head, but did not obtain any significative result.
+      \end{itemize}
+      Other failed experiments include inserting a transformer block in the bottleneck layer, using augmentations provided by the KerasCV library, taking care to only use augmentations which preserve local statistics, and using different optimizers and related hyperparameters.
 
       % For your experiments, you might want to present your results in tables.
       % Here's an example of a wide table comparing different models:
@@ -222,17 +233,17 @@
       \begin{table}[H]
             \centering
             \setlength{\tabcolsep}{3pt}
-            \caption{Description goes here.}
+            \caption{Mean IoU on the test set for the best model using each of the breakthroughs stated above, without using any technique introduced later.}
             \begin{tabularx}{\linewidth}{lY}
                 \toprule
-                Column 1 & Column 2 \\
+                Experiment & Mean IoU \\
                 \midrule
-                Item 1 & Item 2 \\
-                Item 1 & Item 2 \\
-                Item 1 & Item 2 \\
-                Item 1 & Item 2 \\
-                Item 1 & Item 2 \\
-                Item 1 & Item 2 \\
+                Simple U-Net & 0.38328 \\
+                Augmentation & 0.44328 \\
+                Batch size reduction & 0.45797 \\
+                Custom block & 0.45911 \\
+                IoU loss & 0.48808 \\
+                Attention gates & 0.59533 \\
                 \bottomrule
             \end{tabularx}
             \label{tab:results}
@@ -248,12 +259,14 @@
       %     \item Limitations and assumptions
       % \end{itemize}
 
+      % Describe contrast matrix results and up and downsides.
+
       % -----------------------------------------------------------------------
       % CONTRIBUTIONS
       % -----------------------------------------------------------------------
       \section{Contributions}
 
-      Most ideas and propositions were evenly distributed among the team members, while actual coding was more specific to each member's strengths. Many different branches were created in the project's repository to experiment with different ideas and techniques, and the final model was a result of combining the best experiments from each branch.
+      Most ideas and propositions were evenly distributed among the team members, while actual coding was more specific to each member's strengths. The final model and many of the failed experiments are the result of discussing potential improvements and ides between team members.
 
       % -----------------------------------------------------------------------
       % CONCLUSIONS
@@ -266,6 +279,8 @@
       %     \item Suggest improvements
       %     \item Propose future work
       % \end{itemize}
+
+      % Possible improvements: somehow classify class 4 or refine the model on the other classes.
 
       % Remember to include the bibliography!
       \bibliography{references}
