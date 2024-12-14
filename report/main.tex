@@ -122,11 +122,12 @@
 
       In order to validate the model, we split the training set into a training and \textit{validation} set, containing between $10\%$ and $20\%$ of the data depending on the model. Differently from the first homework, we noticed that the validation and \texttt{DS2} MIoUs were similar, so we were able to avoid submitting models with low validation MIoU.
 
-      All models we produced share the same basic structure, heavily inspired by the U-Net\cite{ronneberger2015unetconvolutionalnetworksbiomedical} architecture, consisting of a contracting path on the left and an expanding path on the right, capable of capturing both \textit{local information} and the \textit{global context}. The \textit{contracting path} is composed of a series of convolutional and downsampling layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The \textit{expanding path} is composed of a series of convolutional and up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels. 
+      All models we produced share the same basic structure, displayed in Figure \ref{fig:model_structure}. It is heavily inspired by the U-Net\cite{ronneberger2015unetconvolutionalnetworksbiomedical} architecture, capable of capturing both \textit{local information} and the \textit{global context}. The \textit{contracting path} is composed of a series of $k$ convolutional and downsampling layers, where each layer halves the spatial dimensions of the input, while doubling the number of channels. The \textit{expanding path} is composed of a series of convolutional and up-sampling layers, which act as the opposite of the previous layers, doubling the spatial dimensions and halving the number of channels. 
+
       \begin{figure}[H]
             \centering
             \includegraphics[width=0.7\linewidth]{model-structure.png}
-            \caption{The structure of our model.}
+            \caption{The basic structure of our models, shown here with $k$ layers. On the left, the contracting path, known as the \texttt{Encoder}, in the middle, the \texttt{Bottleneck}, and on the right the expanding path, known as the \texttt{Decoder}, are displayed.}
             \label{fig:model_structure}
       \end{figure}
 
