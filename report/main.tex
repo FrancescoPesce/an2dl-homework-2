@@ -136,12 +136,12 @@
       % -----------------------------------------------------------------------
       \section{Experiments}
       \label{sec:experiments}
-      During development, we tested around $100$ different models, with our experiments being broadly categorizable in 4 categories:
+      During development, we tested around $100$ different models, with our experiments being broadly categorizable in chronological order as:
       \begin{itemize}[leftmargin=*]
             \setlength\itemsep{0em}
-            \item \textbf{Initial experiments:} We started development using a simple U-Net-like architecture with $k=2$, and then introduced simple image \textit{augmentations} such as flips, zooms and changes in brightness to increase the model's robustness. Spatial augmentations were applied to the labels as well, so that they'd refer to the transformed version of their own pixel. Our first obstacle was the model's inability to learn consistently, as minor changes would result in the training processes halting at a MIoU lower then $0.1$. The issue was likely the fact that the training process halted in a \textit{local minimum}, and the more \textit{noisy gradient estimations} produced by a lower \textit{batch size} were able to escape said minimum, allowing us to use larger networks.
+            \item \textbf{Initial experiments:} We started development with a simple U-Net-like architecture with $k=2$, then introduced simple image \textit{augmentations} such as flips, zooms and changes in brightness. Spatial augmentations were applied to the labels as well, so that they'd refer to the transformed version of their own pixel. Our first obstacle was the model's inability to learn consistently, as minor changes would result in the training processes halting at a MIoU lower then $0.1$. The issue was likely the fact that the training process halted in a \textit{local minimum}, and the more \textit{noisy gradient estimations} produced by a lower \textit{batch size} were able to escape said minimum, allowing us to use larger networks.
             \item \textbf{Model M1:} By following our experience with the first homework, we replaced $3\times3$ convolutions with our custom block (described in detail in the previous report), which is formed by a stack of \texttt{Inception} blocks and residual connections. Moreover, to directly optimize the model for the evaluation, we decided to implement a loss function based on MIoU, by directly accessing the backend from \texttt{Keras}. Since it needs to be \textit{differentiable}, it is computed using the posterior probabilities estimated by the model instead of just their maximum, and its sign is flipped to use \textit{gradient descent}. Moreover, we inserted \texttt{Attention Gates}\cite{oktay2018attentionunetlearninglook} between contracting and expanding paths of the same size, to guide the model to learn the most important features of the image, and carefully analyzed the complex \textit{design space} for model architecture and hyperparameters. These changes resulted in a very fine-tuned model with $1.8$ million parameters, and a MIoU on \texttt{DS2} of $0.595$, trained using \texttt{AdamW} with initial learning rate $10^{-4}$, adaptively lowered during training based on validation loss.
-            \item \textbf{Failed experiments:} To try and improve M1's architecture, we performed many failed experiments, requiring by far the most development time. These experiments include replacing $5\times5$ convolutions with $3\times3$ \textit{dilated} convolutions to mantain the large \textit{receptive field} while reducing the number of parameters, inserting a \texttt{Transformer}\cite{vaswani2023attentionneed} block in the bottleneck layer, using augmentations provided by the \texttt{KerasCV}%TODO:reference
+            \item \textbf{Failed experiments:} We performed many failed experiments based on M1's architecture, spending by far the most development time in this phase. These experiments include replacing $5\times5$ convolutions with $3\times3$ \textit{dilated} convolutions to mantain the large \textit{receptive field} while reducing the number of parameters, inserting a \texttt{Transformer}\cite{vaswani2023attentionneed} block in the bottleneck layer, using augmentations provided by the \texttt{KerasCV}%TODO:reference
             library, taking care to only use augmentations which preserve \textit{local statistics}, and using different optimizers. We considered adding a second \textit{classification head} classifying the outputs of the intermediate layer of the contracting path, trained using downsampled versions of the labels, and inserting its MIoU in the loss function, to incentivise the lower level to learn the desired features, experimenting with many weighting techniques, including adaptive ones. We also tried inserting the predictions from M1 into the inputs of a separate model, training the latter with inputs in the form \textit{(image, M1\_prediction)}, with skip connections between M1 predictions and the outputs, with the rationale that this could work as a sort of residual architecture, but without the need for more memory during training. Finally, we experimented with separate models for background and big rock recognition, as discussed in Section \ref{sec:conclusions}.
             \item \textbf{Model M2:} Model M2 differs from prior models in two key aspects: it uses simpler $3\times3$ convolutions in each layer instead of stacks of custom blocks, and the number of layers in the contracting and expanding paths is $k=5$, with upsampling performed with \textit{fractional stride} convolutions. This architecture has around $99$ million parameters, making it more prone to overfitting and prompting the addition of \texttt{Spatial Dropout} layers, \textit{L2 normalization} in convolutions and the change from \texttt{Batch Normalization} to \texttt{Group Normalization} layers. Since the architecture no longer benefits from the presence of \texttt{Attention Gates}, they were removed. A \texttt{Focal}\cite{lin2018focallossdenseobject} loss term, using inverse class frequency weights excluding the background, was added to the global loss, with a weight of $0.2$. M2 is capable of capturing more of the images' features, resulting in a higher MIoU of $0.629$ on \texttt{DS2}.
       \end{itemize}
@@ -227,7 +227,6 @@
       Table \ref{tab:results} displays the highest MIoU on \texttt{DS2} using the succesful techniques discussed in Section \ref{sec:experiments}, before introducing the next technique.
 
       \begin{table}[H]
-            \label{tab:results}
             \centering
             \setlength{\tabcolsep}{3pt}
             \begin{tabularx}{\linewidth}{lY}
@@ -242,6 +241,8 @@
                 Deeper architectures (M2) & 0.62900 \\
                 \bottomrule
             \end{tabularx}
+            \label{tab:results}
+            \caption{Experimental results on \texttt{DS2}.}
       \end{table}
 
 
@@ -255,14 +256,19 @@
       %     \item Limitations and assumptions
       % \end{itemize}
 
-      We developed a deep and robust image segmentation network, capable of performing image segmentation of Mars terrain images, despite the issues of the labeling process described in Section \ref{sec:analysis}. Analyzing the \textit{confusion matrix} on the validation set, it appears the model captures well the features of three terrain types, with a MIoU on said terrains of over $0.8$. The largest weaknesses of the model is the fact that it performs poorly on the big rock class, as it was not capable of learning the class's features from just the $63$ images in \texttt{DS1} that feature the class. A further weaknesses of M2 is that it is not trainable on commodity hardware, and cannot even be used for prediction on devices with lower capabilities. In this regard, we propose the usage of model M1, which has a slightly lower MIoU, but solves the previously mentioned issue, as it was trained on mid-range laptop GPU from several generations ago.
+      Despite the issues of the labeling process described in Section \ref{sec:analysis}, we were able to develop a deep and robust image segmentation network for Mars terrain images by using techniques from the state of the art and our own intuitions. 
+      
+      The \textit{confusion matrix} for the validation set indicates that M2 captures terrain features well, with a MIoU of over $0.8$ on the three terrain classes. Conversely, its largest weakness is the fact that it performs poorly at classifying big rocks, as it was unable to learn the class's features from the $63$ images in \texttt{DS1} that feature them. 
+      
+      The current industry trend of integrating AI models in mobile and less performing devices %TODO: add reference if you can find one
+      highlights another weakness of M2, as it cannot be used for prediction in many such devices. For this purpose we propose M1, which has a MIoU penalty of around $3\%$, but was trained on a commodity GPU and has fewer than $2\%$ the number of parameters.
 
       % -----------------------------------------------------------------------
       % CONTRIBUTIONS
       % -----------------------------------------------------------------------
       \section{Contributions}
 
-      Most ideas and propositions were evenly distributed among the team members, while actual coding was more specific to each member's strengths. The final model and many of the failed experiments are the result of discussing potential improvements and ides between team members.
+      Most ideas and propositions were evenly distributed among the team members, while actual coding was more specific to each member's strengths. The final models and many of the failed experiments are the result of discussing potential improvements and ideas between team members.
 
       % -----------------------------------------------------------------------
       % CONCLUSIONS
@@ -277,7 +283,7 @@
       %     \item Propose future work
       % \end{itemize}
 
-      In this challenge, we were able to tackle an \textit{image segmentation} task and develop close to $100$ models, exploring the design space of \textit{image segmentation} architectures, with our final model obtaining a MIoU on non-background classes of $0.629$ on \texttt{DS2}. Future work centers around the poor performance of our models on the big rock class, as they often misclassifies the background as a big rock. An idea we would like to further explore is developing separate models for big rock or background recognition. While we experimented with both, considering both the options of using the full dataset and just the images containing big rocks, obtaining no meaninful results, we believe that the idea has potential, especially if coupled with a technique to generate more big rock samples, either using a larger dataset or with advanced image augmentation techniques. Since the current IoU for the class is close to 0, even a small improvement would hugely impact the final MIoU of the model.
+      In this challenge, we were able to tackle an \textit{image segmentation} task and develop close to $100$ models, with the final model having a $0.629$ MIoU on \texttt{DS2}. Future work centers around the classification of big rocks. An idea we wish to further explore is developing separate models for big rock or background recognition. Despite having experimented with both, considering both the options of using the full dataset and just the images containing big rocks, and having obtained no results, we believe that coupling the idea with a richer dataset or with advanced image augmentation techniques to generate more images could provide meanigful results, which would hugely impact the model's MIoU.
 
       % Remember to include the bibliography!
       \bibliography{references}
